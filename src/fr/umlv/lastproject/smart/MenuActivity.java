@@ -1,7 +1,5 @@
 package fr.umlv.lastproject.smart;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.io.IOException;
 
 import org.osmdroid.events.MapAdapter;
@@ -17,41 +15,26 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
-import android.widget.Button;
 import android.widget.ImageButton;
-import fr.umlv.lastproject.smart.database.DbManager;
-import fr.umlv.lastproject.smart.database.FormRecord;
-import fr.umlv.lastproject.smart.database.GeometryRecord;
-import fr.umlv.lastproject.smart.database.TextFieldRecord;
-import fr.umlv.lastproject.smart.form.BooleanField;
 import fr.umlv.lastproject.smart.form.CreateFormActivity;
 import fr.umlv.lastproject.smart.form.Form;
-import fr.umlv.lastproject.smart.form.ListField;
-import android.widget.RadioGroup;
-import android.widget.RadioGroup.OnCheckedChangeListener;
-import android.widget.TextView;
 import android.widget.Toast;
 import fr.umlv.lastproject.smart.GPSTrack.TRACK_MODE;
-import fr.umlv.lastproject.smart.browser.utils.FileUtils;
+import fr.umlv.lastproject.smart.dialog.AlertCreateMissionDialog;
+import fr.umlv.lastproject.smart.dialog.AlertExitSmartDialog;
+import fr.umlv.lastproject.smart.dialog.AlertGPSSettingDialog;
 import fr.umlv.lastproject.smart.dialog.AlertTrackDialog;
 import fr.umlv.lastproject.smart.form.Mission;
-import fr.umlv.lastproject.smart.form.NumericField;
-import fr.umlv.lastproject.smart.form.PictureField;
-import fr.umlv.lastproject.smart.form.TextField;
 import fr.umlv.lastproject.smart.layers.Geometry.GeometryType;
 import fr.umlv.lastproject.smart.utils.SmartConstants;
 
@@ -66,15 +49,7 @@ public class MenuActivity extends Activity {
 	 * 
 	 */
 
-	private static final int HOME_VIEW = 1;
-	private static final int LAYERS_VIEW = 2;
 	private SmartMapView mapView;
-	
-	private static final int CREATE_MISSION = 0;
-	private static final int CREATE_FORM = 1;
-	private static final int POINT_SURVAY = 2;
-	private static final int LINE_SURVAY = 3;
-	private static final int POLYGON_SURVAY = 4;
 
 	private MapController mapController;
 	private OverlayManager overlayManager;
@@ -85,13 +60,15 @@ public class MenuActivity extends Activity {
 	private View centerMap;
 	private boolean isMapTracked = true;
 	private GeoPoint lastPosition = new GeoPoint(0, 0);
+
 	private boolean missionCreated = false;
 
-	private TextView formPath;
 	private String missionName;
-	
+
 	private GPSTrack gpsTrack;
-	private static final int GPS_TRACK=5;
+
+	private AlertCreateMissionDialog missionDialog;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -125,18 +102,8 @@ public class MenuActivity extends Activity {
 
 	@Override
 	public void onBackPressed() {
-		AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-		alertDialog.setTitle(R.string.exit);
-		alertDialog.setMessage(R.string.exitMsg);
-		alertDialog.setNegativeButton(R.string.no, null);
-		alertDialog.setPositiveButton(R.string.yes, new OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				finish();
-			}
-		});
-		alertDialog.show();
+		final AlertExitSmartDialog exitDialog = new AlertExitSmartDialog(this);
+		exitDialog.show();
 	}
 
 	@Override
@@ -228,25 +195,9 @@ public class MenuActivity extends Activity {
 		gps = new GPS(locationManager);
 
 		if (!gps.isEnabled(locationManager)) {
-			AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-			alertDialog.setTitle(R.string.gpsSettings);
-			alertDialog.setMessage(R.string.gpsMessage);
-
-			alertDialog.setNegativeButton(R.string.cancel, null);
-
-			alertDialog.setPositiveButton(R.string.validate,
-					new OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							Intent intent = new Intent(
-									android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-							startActivity(intent);
-
-						}
-					});
-
-			alertDialog.show();
+			final AlertGPSSettingDialog gpsSettingDialog = new AlertGPSSettingDialog(
+					this);
+			gpsSettingDialog.show();
 		}
 
 		gps.start(SmartConstants.GPS_REFRESH_TIME,
@@ -298,71 +249,6 @@ public class MenuActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 	
-	public void openMisisonDialog() {
-		LayoutInflater inflater = LayoutInflater.from(this);
-		final View createMissionDialog = inflater.inflate(
-				R.layout.create_mission_dialog, null);
-
-		final Context c = this;
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setView(createMissionDialog);
-		builder.setTitle(R.string.mission);
-
-		final Button openBrowser = (Button) createMissionDialog
-				.findViewById(R.id.selectFormButton);
-		formPath = (TextView) createMissionDialog.findViewById(R.id.formPath);
-
-		final TextView textViewMissionName = ((TextView) createMissionDialog
-				.findViewById(R.id.missionNameValue));
-
-		RadioGroup radioForm = (RadioGroup) createMissionDialog
-				.findViewById(R.id.radioForm);
-
-		radioForm.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-			@Override
-			public void onCheckedChanged(RadioGroup group, int checkedId) {
-				if (openBrowser.getVisibility() == View.GONE) {
-					openBrowser.setVisibility(View.VISIBLE);
-					formPath.setVisibility(View.VISIBLE);
-				} else {
-					openBrowser.setVisibility(View.GONE);
-					formPath.setVisibility(View.GONE);
-				}
-
-			}
-		});
-
-		openBrowser.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent = FileUtils.createGetContentIntent(
-						FileUtils.XML_TYPE,
-						Environment.getExternalStorageDirectory() + "");
-				startActivityForResult(intent, SmartConstants.BROWSER_ACTIVITY);
-			}
-		});
-
-		builder.setPositiveButton(R.string.validate, new OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface arg0, int arg1) {
-				missionName = textViewMissionName.getText().toString();
-				Form f = new Form("pouet");
-				f.addField(new TextField("toto"));
-				Mission.createMission(missionName, c,
-						mapView, f);
-				missionCreated = Mission.getInstance().startMission();
-				overlayManager.add(Mission.getInstance().getPolygonLayer());
-				overlayManager.add(Mission.getInstance().getLineLayer());
-				overlayManager.add(Mission.getInstance().getPointLayer());
-			}
-		});
-		builder.show();
-	}
-
-
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -377,8 +263,8 @@ public class MenuActivity extends Activity {
 						missionCreated = Mission.getInstance().stopMission();
 
 					} else {
-						openMisisonDialog();
-
+						missionDialog = new AlertCreateMissionDialog(this);
+						missionDialog.show();
 					}
 //					Form f = new Form("MonForm");
 //					f.addField(new TextField("titi"));
@@ -445,7 +331,7 @@ public class MenuActivity extends Activity {
 				case SmartConstants.POLYGON_SURVEY:
 					Mission.getInstance().startSurvey(GeometryType.POLYGON);
 					break;
-				case GPS_TRACK:
+				case SmartConstants.GPS_TRACK:
 					if(gpsTrack==null){
 						final AlertTrackDialog trackDialog=new AlertTrackDialog(this);
 						trackDialog.show();
@@ -474,5 +360,22 @@ public class MenuActivity extends Activity {
 		gpsTrack=new GPSTrack(trackMode, name, locationManager, mapView);
 		gpsTrack.startTrack();
 		
+	}
+
+	public void startMission(final String missionName) {
+		this.setMissionName(missionName);
+		Mission.createMission(missionName, this, mapView, new Form());
+		missionCreated = Mission.getInstance().startMission();
+		overlayManager.add(Mission.getInstance().getPolygonLayer());
+		overlayManager.add(Mission.getInstance().getLineLayer());
+		overlayManager.add(Mission.getInstance().getPointLayer());
+	}
+	
+	public String getMissionName() {
+		return missionName;
+	}
+
+	public void setMissionName(String missionName) {
+		this.missionName = missionName;
 	}
 }

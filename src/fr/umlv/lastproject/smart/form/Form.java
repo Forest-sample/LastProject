@@ -61,7 +61,7 @@ public class Form implements Serializable {
 	private static final int LIST_FIELD = 3;
 	private static final int PICTURE_FIELD = 4;
 	private static final int HEIGHT_FIELD = 5;
-	
+
 	private final String FORM ="form" ;
 	private final String FIELD="field" ;
 	private final String TYPE="type" ;
@@ -146,65 +146,64 @@ public class Form implements Serializable {
 		final Form form = this;
 		adb.setView(alertDialogView);
 		adb.setTitle("Formulaire");
-		
+
 
 		adb.setPositiveButton("Valider", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
-				
+
 				DbManager dbManager = new DbManager();
 				dbManager.open(context);
 				int idGeometry = dbManager.insertGeometry(new GeometryRecord(g,
 						Mission.getInstance().getId()));
 				FormRecord formRecord = new FormRecord(form);
 
-				if(formRecord.getFields().size()>1){
-					for(int i=0; i<formRecord.getFields().size();i++){
-						int type = formRecord.getFields().get(i).getField().getType();
+				for(int i=0; i<formRecord.getFields().size();i++){
+					int type = formRecord.getFields().get(i).getField().getType();
 
 
-						switch(type){
-						case TEXT_FIELD:
-							TextFieldRecord text = (TextFieldRecord) formRecord.getFields().get(i);
-							text.setValue(((EditText) editTextList.get(i)).getText().toString());
-							
-							break;
-						case NUMERIC_FIELD:
-							final NumericFieldRecord num = (NumericFieldRecord) formRecord.getFields().get(i);
-							num.setValue(Double.parseDouble(((EditText) editTextList.get(i)).getText().toString()));
-							break;
-						case BOOLEAN_FIELD:
-							BooleanFieldRecord b = (BooleanFieldRecord) formRecord.getFields().get(i);
-							RadioGroup g = (RadioGroup) editTextList.get(i);
-							if(g.getCheckedRadioButtonId() == 0){
-								b.setValue(true);
-							} else {
-								b.setValue(false);
-							}
-							break;
-						case LIST_FIELD:
-							ListFieldRecord l = (ListFieldRecord) formRecord.getFields().get(i);
-							l.setValue(((EditText) editTextList.get(i)).getText().toString());
-							break;
-						case PICTURE_FIELD:
-							PictureFieldRecord p = (PictureFieldRecord) formRecord.getFields().get(i);
-							p.setValue(((EditText) editTextList.get(i)).getText().toString());
-							break;
-						case HEIGHT_FIELD:
-							HeightFieldRecord h = (HeightFieldRecord) formRecord.getFields().get(i);
-							h.setValue(Double.parseDouble(((EditText) editTextList.get(i)).getText().toString()));
+					switch(type){
+					case TEXT_FIELD:
+						TextFieldRecord text = (TextFieldRecord) formRecord.getFields().get(i);
+						text.setValue(((EditText) editTextList.get(i)).getText().toString());
 
-							break;
-						default:
+						break;
+					case NUMERIC_FIELD:
+						final NumericFieldRecord num = (NumericFieldRecord) formRecord.getFields().get(i);
+						num.setValue(Double.parseDouble(((EditText) editTextList.get(i)).getText().toString()));
+						break;
+					case BOOLEAN_FIELD:
+						BooleanFieldRecord b = (BooleanFieldRecord) formRecord.getFields().get(i);
+						RadioGroup g = (RadioGroup) editTextList.get(i);
+						if(g.getCheckedRadioButtonId() == 0){
+							b.setValue(true);
+						} else {
+							b.setValue(false);
 						}
+						break;
+					case LIST_FIELD:
+						ListFieldRecord l = (ListFieldRecord) formRecord.getFields().get(i);
+						l.setValue(((EditText) editTextList.get(i)).getText().toString());
+						break;
+					case PICTURE_FIELD:
+						PictureFieldRecord p = (PictureFieldRecord) formRecord.getFields().get(i);
+						p.setValue(((EditText) editTextList.get(i)).getText().toString());
+						break;
+					case HEIGHT_FIELD:
+						HeightFieldRecord h = (HeightFieldRecord) formRecord.getFields().get(i);
+						h.setValue(Double.parseDouble(((EditText) editTextList.get(i)).getText().toString()));
+
+						break;
+					default:
 					}
 				}
+
 				dbManager.insertFormRecord(formRecord, idGeometry);
 				dbManager.close();
 
 			}
 		});
-		
-		
+
+
 
 		adb.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
@@ -220,16 +219,16 @@ public class Form implements Serializable {
 	 * @throws FileNotFoundException if the file does not exist
 	 */
 	public void read(String s) throws XmlPullParserException, FileNotFoundException{
-		
+
 		XmlPullParserFactory xml = XmlPullParserFactory.newInstance() ;
 		xml.setNamespaceAware(true);
 		XmlPullParser xpp = xml.newPullParser();
 		FileInputStream fis = new FileInputStream(new File(s));
 		xpp.setInput(fis,"UTF-8");
 		int eventype = xpp.getEventType() ;
-		
+
 		while(eventype != XmlPullParser.END_DOCUMENT){
-			
+
 			if(eventype == XmlPullParser.START_TAG){
 				String tag = xpp.getName();
 				if(tag == FORM){
@@ -239,14 +238,14 @@ public class Form implements Serializable {
 						}
 					}
 				}else if(tag == FIELD){
-					
-					
+
+
 					String type = null ;
 					String title = null ; ;
 					int max = 0 ;
 					int min = 0 ;
 					String values = null ;
-					
+
 					for(int i = 0 ; i < xpp.getAttributeCount() ; i++){
 						if(xpp.getAttributeType(i) == TYPE){
 							type = xpp.getAttributeValue(i);
@@ -261,20 +260,20 @@ public class Form implements Serializable {
 						}
 					}
 					/*if(type == null) 
-					
+
 					if( type == "photo" ){
 						addField(new HeightField("")) ;
 					}else if(type == "height"){
 						addField(new HeightFieldRecord(field, value))
 					}else if(type == "")*/
-										
+
 				}
-				
+
 			}
-			
+
 		}
 	}
-	
+
 	public void buildForm(TableLayout l, final Context c){
 
 		editTextList = new LinkedList<Object>();
