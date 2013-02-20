@@ -19,7 +19,7 @@ import fr.umlv.lastproject.smart.layers.PointGeometry;
  *
  */
 public class GPSTrack {
-
+	
 	private final TRACK_MODE trackMode;
 	private final GPS gps;
 	private final List<TrackPoint> trackPoints;
@@ -28,7 +28,7 @@ public class GPSTrack {
 	private boolean isFinished, isStarted;
 	private final LineGeometry lineGeometry;
 	private final String trackName;
-
+	
 	/**
 	 * To know if we track by distance (meters) or time (seconds)
 	 * @author Marc
@@ -36,24 +36,24 @@ public class GPSTrack {
 	 */
 	public enum TRACK_MODE{
 		TIME(1), DISTANCE(10);
-
+		
 		private  int parameter;
-
+		
 		 TRACK_MODE(final int param){
 			this.parameter=param;
 		}
-
+		 
 		 public int getParameter(){
 			 return this.parameter;
 		 }
-
+		 
 		 public void setParameter(int parameter){
 			 this.parameter=parameter;
 		 }
 	}
-
+	
 	public GPSTrack(final TRACK_MODE mode, final String trackName, final LocationManager lm, final SmartMapView mapView){
-
+		
 		isFinished=false;
 		isStarted=false;
 		this.trackName=trackName;
@@ -61,14 +61,14 @@ public class GPSTrack {
 		this.gps=new GPS(lm);
 		this.trackPoints=new ArrayList<TrackPoint>();
 		this.gpsListener=new IGPSListener() {
-
+			
 			@Override
 			public void actionPerformed(GPSEvent event) {
 				final double latitude=event.getLatitude();
 				final double longitude=event.getLongitude();
 				final TrackPoint trackPoint=new TrackPoint(longitude, latitude, event.getAltitude(), event.getTime());
 				trackPoints.add(trackPoint);
-
+				
 				lineGeometry.addPoint(new PointGeometry(latitude, longitude));
 			}
 		};
@@ -79,7 +79,7 @@ public class GPSTrack {
 		this.geometryLayer.addGeometry(lineGeometry);
 		this.geometryLayer.setSymbology(new LineSymbology(5, Color.RED));
 		mapView.getOverlays().add(geometryLayer);
-
+				
 	}
 
 	/**
@@ -98,9 +98,9 @@ public class GPSTrack {
 	public List<TrackPoint> getTrackPoints() {
 		return trackPoints;
 	}
-
-
-
+	
+	
+	
 	/**
 	 * Starts track if not already started
 	 */
@@ -117,10 +117,10 @@ public class GPSTrack {
 				break;
 			}
 		}
-
+		
 	}
-
-
+	
+	
 	/**
 	 * Stops track and writes gpx files
 	 * @throws IOException
@@ -132,12 +132,12 @@ public class GPSTrack {
 			/**Writing of gpx file */
 			GPXWriter.writeGpxFile(trackName, trackPoints);
 		}
-
-
-
-
+		
+		
+		
+		
 	}
-
-
+	
+	
 
 }

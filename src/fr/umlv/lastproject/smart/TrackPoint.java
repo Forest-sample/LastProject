@@ -14,7 +14,7 @@ import java.util.Date;
  *
  */
 public class TrackPoint {
-
+	
 	private final double longitude;
 	private final double latitude;
 	private final double elevation;
@@ -23,7 +23,7 @@ public class TrackPoint {
      * Date format for a point timestamp.
      */
     private static final SimpleDateFormat POINT_DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-
+	
 	public TrackPoint(final double longitude, final double latitude, final double elevation, final Date time) {
 		this.longitude=longitude;
 		this.latitude=latitude;

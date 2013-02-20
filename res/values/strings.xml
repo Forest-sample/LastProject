@@ -65,7 +65,7 @@
     
     <string name="defaultForm">Default</string>
     <string name="othertForm">Other</string>
-      <string name="track_text_name">Enter a name for this track</string>
+       <string name="track_text_name">Enter a name for this track</string>
     <string name="track_text_param">Enter a value for the mode selected </string>
     <string name="track_radio_time">Time (s)</string>
     <string name="track_radio_distance">Distance (m)</string>

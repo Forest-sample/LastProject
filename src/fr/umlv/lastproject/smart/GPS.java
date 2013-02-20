@@ -5,23 +5,14 @@ import java.util.Date;
 import java.util.List;
 
 import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Bundle;
 
 public class GPS {
 	private LocationManager locationManager;
 	private Criteria criteria;
-	private double latitude;
-	private double longitude;
-	private double altitude;
-	private float accuracy;
-	private float bearing;
-	private float speed;
-	private Date time;
 
-	private List<IGPSListener> GPSListeners = new ArrayList<IGPSListener>();
+
+	private final List<IGPSListener> gpsListeners;
 
 	/**
 	 * GPS Constructor
@@ -33,6 +24,7 @@ public class GPS {
 		if(lm==null){
 			throw new IllegalArgumentException();
 		}
+		gpsListeners = new ArrayList<IGPSListener>();
 		this.locationManager = lm;
 		this.criteria = new Criteria();
 		this.criteria.setAltitudeRequired(false);
@@ -57,8 +49,8 @@ public class GPS {
 	 * 
 	 * @return the list of compatible GPS
 	 */
-	public ArrayList<String> getValidateGPS() {
-		return (ArrayList<String>) locationManager.getProviders(criteria, true);
+	public List<String> getValidateGPS() {
+		return  locationManager.getProviders(criteria, true);
 	}
 
 	/**
@@ -74,47 +66,9 @@ public class GPS {
 		// start !
 		this.locationManager.requestLocationUpdates(
 				LocationManager.GPS_PROVIDER, ms, meter,
-				new LocationListener() {
+				new SmartLocationListener(gpsListeners));
 
-					@Override
-					public void onStatusChanged(String provider, int status,
-							Bundle extras) {
-						// TODO Auto-generated method stub
-
-					}
-
-					@Override
-					public void onProviderEnabled(String provider) {
-						// TODO Auto-generated method stub
-
-					}
-
-					@Override
-					public void onProviderDisabled(String provider) {
-						// TODO Auto-generated method stub
-
-					}
-
-					@Override
-					public void onLocationChanged(Location location) {
-						
-
-						longitude = location.getLongitude();
-						latitude = location.getLatitude();
-						altitude = location.getAltitude();
-						accuracy = location.getAccuracy();
-						bearing = location.getBearing();
-						speed = location.getSpeed();
-						time=new Date(location.getTime());
-
-						for (int i = 0; i < GPSListeners.size(); i++) {
-							GPSListeners.get(i).actionPerformed(
-									new GPSEvent(latitude, longitude, altitude,
-											accuracy, bearing, speed,time));
-						}
-
-					}
-				});
+					
 	}
 
 	/**
@@ -124,58 +78,12 @@ public class GPS {
 	 *            : listener to add
 	 */
 	public void addGPSListener(IGPSListener listener) {
-		GPSListeners.add(listener);
+		gpsListeners.add(listener);
 	}
 	
 	public void removeGPSListener(IGPSListener listener){
-		GPSListeners.remove(listener);
+		gpsListeners.remove(listener);
 	}
 
-	/**
-	 * 
-	 * @return the latitude
-	 */
-	public double getLatitude() {
-		return latitude;
-	}
 
-	/**
-	 * 
-	 * @return the longitude
-	 */
-	public double getLongitude() {
-		return longitude;
-	}
-
-	/**
-	 * 
-	 * @return the altitude
-	 */
-	public double getAltitude() {
-		return altitude;
-	}
-
-	/**
-	 * 
-	 * @return the accuracy
-	 */
-	public float getAccuracy() {
-		return accuracy;
-	}
-
-	/**
-	 * 
-	 * @return the bearing
-	 */
-	public float getBearing() {
-		return bearing;
-	}
-
-	/**
-	 * 
-	 * @return the speed
-	 */
-	public float getSpeed() {
-		return speed;
-	}
 }

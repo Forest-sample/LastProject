@@ -12,15 +12,15 @@ import android.widget.TextView;
  * 
  */
 public class InfoOverlay {
-	private DecimalFormat locationFormat = new DecimalFormat("####0.00000");
-	private DecimalFormat accuracyFormat = new DecimalFormat("####0.00");
+	private static final DecimalFormat locationFormat = new DecimalFormat("####0.00000");
+	private static final DecimalFormat accuracyFormat = new DecimalFormat("####0.00");
 
 	private double latitude;
 	private double longitude;
 	private double altitude;
 	private float accuracy;
 
-	private View infoView;
+	private final View infoView;
 
 	/**
 	 * InfoOverlay constructor
@@ -96,7 +96,7 @@ public class InfoOverlay {
 		((TextView) infoView.findViewById(R.id.precision))
 				.setText(R.string.accuracy);
 		((TextView) infoView.findViewById(R.id.precisionValue))
-				.setText(locationFormat.format(accuracy));
+				.setText(accuracyFormat.format(accuracy));
 
 	}
 }

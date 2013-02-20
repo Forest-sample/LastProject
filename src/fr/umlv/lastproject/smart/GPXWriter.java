@@ -28,8 +28,8 @@ public final class GPXWriter {
 			+ " version=\"1.1\""
 			+ " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
 			+ " xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd \">";
-
-
+	
+	
 	private static final String TRACKS_FOLDER=Environment.getExternalStorageDirectory()+ "/SMART/"+"tracks/";
 
 	private GPXWriter() {
@@ -54,18 +54,20 @@ public final class GPXWriter {
 		if (trackName == null || trackPoints==null){
 			throw new IllegalArgumentException();
 		}
-		if(trackPoints.isEmpty())return;
+		if(trackPoints.isEmpty()){
+			return;
+		}
 		final File appFolder = new File(TRACKS_FOLDER);
 		appFolder.mkdirs();
-
-
+		
+		
 		final File trackFile = new File(TRACKS_FOLDER+trackName+".gpx");
-
+		
 		final FileWriter fileWriter = new FileWriter(trackFile);
 
 		fileWriter.write(XML_HEADER + "\n");
 		fileWriter.write(TAG_GPX + "\n");
-
+		
 		writeTrackPoints(trackName, fileWriter, trackPoints);
 		fileWriter.write("</gpx>");
 
@@ -86,51 +88,23 @@ public final class GPXWriter {
 	public static void writeTrackPoints(final String trackName,
 			final FileWriter fileWriter, final List<TrackPoint> trackPoints)
 			throws IOException {
-
+		
 
 		final StringBuilder builder = new StringBuilder();
-		builder.append("\t" + "<trk>");
-		builder.append("\t\t" + "<name>" + trackName + "</name>" + "\n");
-		builder.append("\t\t" + "<trkseg>" + "\n");
-		// fileWriter.write("\t" + "<trk>");
-		// fileWriter.write("\t\t" + "<name>" + trackName + "</name>" + "\n");
-		// fileWriter.write("\t\t" + "<trkseg>" + "\n");
+		builder.append("\t").append("<trk>");
+		builder.append("\t\t").append("<name>").append(trackName).append("</name>").append("\n");
+		builder.append("\t\t").append("<trkseg>").append("\n");
 		for (TrackPoint trackPoint : trackPoints) {
-			builder.append("\t\t\t" + "<trkpt lat=\""
-					+ trackPoint.getLatitude() + "\" " + "lon=\""
-					+ trackPoint.getLongitude() + "\">");
-			builder.append("<ele>" + trackPoint.getElevation() + "</ele>");
-			builder.append("<time>" + trackPoint.getTime() + "</time>");
-			builder.append("</trkpt>" + "\n");
+			builder.append("\t\t\t").append("<trkpt lat=\"").append(trackPoint.getLatitude()).append("\" ").append("lon=\"").append(trackPoint.getLongitude()).append("\">");
+			builder.append("<ele>").append(trackPoint.getElevation()).append("</ele>");
+			builder.append("<time>").append(trackPoint.getTime()).append("</time>");
+			builder.append("</trkpt>").append("\n");
 		}
 
-		// while (!c.isAfterLast() ) {
-		// StringBuffer out = new StringBuffer();
-		// out.append("\t\t\t" + "<trkpt lat=\""
-		// + c.getDouble(c.getColumnIndex(DataHelper.Schema.COL_LATITUDE)) +
-		// "\" "
-		// + "lon=\"" +
-		// c.getDouble(c.getColumnIndex(DataHelper.Schema.COL_LONGITUDE)) +
-		// "\">");
-		// out.append("<ele>" +
-		// c.getDouble(c.getColumnIndex(DataHelper.Schema.COL_ELEVATION)) +
-		// "</ele>");
-		// out.append("<time>" + POINT_DATE_FORMATTER.format(new
-		// Date(c.getLong(c.getColumnIndex(DataHelper.Schema.COL_TIMESTAMP)))) +
-		// "</time>");
-
-
-
-		// out.append("</trkpt>" + "\n");
-
-		// fileWriter.write(out.toString());
-
-		// c.moveToNext();
-		// }
-		builder.append("\t\t" + "</trkseg>" + "\n");
-		builder.append("\t" + "</trk>" + "\n");
-		// fileWriter.write("\t\t" + "</trkseg>" + "\n");
-		// fileWriter.write("\t" + "</trk>" + "\n");
+		
+		builder.append("\t\t").append("</trkseg>").append("\n");
+		builder.append("\t").append("</trk>").append("\n");
+		
 		fileWriter.write(builder.toString());
 	}
 

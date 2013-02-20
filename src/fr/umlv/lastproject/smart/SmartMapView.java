@@ -16,10 +16,7 @@ import fr.umlv.lastproject.smart.geotiff.TMSOverlay;
  */
 public class SmartMapView extends MapView {
 
-//	private static final String WORLD_MAP_FOLDER = "Test";
-//	private static final int WORLD_MAP_MIN_ZOOM = 0;
-//	private static final int WORLD_MAP_MAX_ZOOM = 4;
-//	private static final String WORLD_MAP_EXTENSION = ".png";
+
 	
 
 
@@ -29,15 +26,7 @@ public class SmartMapView extends MapView {
 		this.geoTIFFOverlays = new ArrayList<TMSOverlay>();
 		//super.getOverlayManager().getTilesOverlay().setEnabled(false);
 
-//		TMSOverlay worldOverlay;
-//		
-//			worldOverlay = DataImport.importGeoTIFFFileZIP(WORLD_MAP_FOLDER,
-//					context, WORLD_MAP_MIN_ZOOM, WORLD_MAP_MAX_ZOOM,
-//					WORLD_MAP_EXTENSION);
-//			
-//			addGeoTIFFOverlay(worldOverlay);
-			
-		
+
 
 	}
 
@@ -48,6 +37,9 @@ public class SmartMapView extends MapView {
 	 * @param overlay
 	 */
 	public void addGeoTIFFOverlay(final TMSOverlay overlay) {
+		if(overlay==null){
+			throw new IllegalArgumentException();
+		}
 		geoTIFFOverlays.add(overlay);
 		getOverlays().add(0, overlay);
 
@@ -58,7 +50,11 @@ public class SmartMapView extends MapView {
 	 * @param overlay
 	 */
 	public void removeGeoTIFFOverlay(final TMSOverlay overlay) {
+		if(overlay==null){
+			throw new IllegalArgumentException();
+		}
 		getOverlays().remove(overlay);
+		geoTIFFOverlays.remove(overlay);
 	}
 
 	/**
